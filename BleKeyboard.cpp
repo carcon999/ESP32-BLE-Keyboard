@@ -103,7 +103,11 @@ BleKeyboard::BleKeyboard(std::string deviceName, std::string deviceManufacturer,
 
 void BleKeyboard::begin(void)
 {
+#if defined(ARDUINO_XIAO_ESP32C6)
+  BLEDevice::init(deviceName.c_str());
+#else
   BLEDevice::init(deviceName);
+#endif
   BLEServer* pServer = BLEDevice::createServer();
   pServer->setCallbacks(this);
 
@@ -114,7 +118,11 @@ void BleKeyboard::begin(void)
 
   outputKeyboard->setCallbacks(this);
 
+#if defined(ARDUINO_XIAO_ESP32C6)
+  hid->manufacturer()->setValue(deviceManufacturer.c_str());
+#else
   hid->manufacturer()->setValue(deviceManufacturer);
+#endif
 
   hid->pnp(0x02, vid, pid, version);
   hid->hidInfo(0x00, 0x01);
@@ -127,7 +135,11 @@ void BleKeyboard::begin(void)
 #else
 
   BLESecurity* pSecurity = new BLESecurity();
+#if defined(ARDUINO_XIAO_ESP32C6)
+  pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+#else
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
+#endif
 
 #endif // USE_NIMBLE
 
